@@ -1,283 +1,496 @@
 (function () {
-"use strict";
-​if (document.getElementById("shortner-aincrad-root")) return;
-​const APP_CSS = "#shortner-aincrad-root{position:fixed;inset:0;z-index:2147483647;overflow:auto;background:linear-gradient(135deg,#eafcff 0%,#f7fbff 45%,#eef0ff 100%)}\n\n*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}\nhtml,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#17324d}\nbody{background:transparent}\n#water{display:none}\n.blob{display:none;position:fixed;border-radius:50%;filter:blur(34px);opacity:.42;pointer-events:none;z-index:1}\n.b1{width:230px;height:230px;background:#59e9ff;top:-80px;left:-60px}\n.b2{width:260px;height:260px;background:#8e83ff;right:-90px;bottom:-80px}\n.b3{width:170px;height:170px;background:#62dfff;left:45%;top:20%;opacity:.22}\n.page{position:absolute;inset:0;z-index:2;display:grid;place-items:center;padding:22px;opacity:0;visibility:hidden;transform:translateY(10px) scale(.985);transition:opacity .18s ease,transform .18s ease,visibility .18s}\n.page.active{opacity:1;visibility:visible;transform:none}\n.card{width:min(430px,100%);padding:30px 24px 22px;border:1px solid rgba(255,255,255,.8);border-radius:30px;background:rgba(255,255,255,.42);box-shadow:0 24px 70px rgba(63,119,155,.18),inset 0 1px 0 rgba(255,255,255,.95);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);text-align:center;position:relative;overflow:hidden}\n.card:before{content:"";position:absolute;left:-30%;top:-65%;width:160%;height:90%;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.5) 48%,transparent 63%);transform:rotate(-8deg);pointer-events:none}\n.logo{width:74px;height:74px;margin:0 auto 13px;filter:drop-shadow(0 10px 15px rgba(36,171,214,.22))}\nh1{font-size:30px;letter-spacing:5px;margin:0;font-weight:800}\n.sub{margin:6px 0 19px;font-size:11px;letter-spacing:3px;color:#5f7d91;font-weight:700}\n.status{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:99px;background:rgba(255,255,255,.55);font-size:10px;font-weight:800;letter-spacing:1.4px;color:#477086;margin-bottom:19px}\n.dot{width:7px;height:7px;border-radius:50%;background:#19d69b;box-shadow:0 0 0 5px rgba(25,214,155,.12)}\n.field{width:100%;height:54px;border:1px solid rgba(117,164,185,.25);border-radius:17px;background:rgba(255,255,255,.57);outline:none;padding:0 16px;text-align:center;font-size:16px;letter-spacing:2px;color:#17324d;box-shadow:inset 0 1px 2px rgba(40,100,130,.06)}\n.field:focus{border-color:rgba(46,197,231,.65);box-shadow:0 0 0 4px rgba(52,207,235,.1)}\nbutton{width:100%;height:52px;border:0;border-radius:17px;margin-top:12px;color:white;font-weight:800;letter-spacing:1.7px;font-size:12px;cursor:pointer;box-shadow:0 13px 27px rgba(62,128,184,.22);position:relative;overflow:hidden;transition:transform .12s ease}\n.primary{background:linear-gradient(100deg,#18cfe8,#477cf6,#895cf4);background-size:180% 100%}\n@keyframes grad{to{background-position:180% 0}}\n.primary.animating{animation:grad .55s ease-in-out 1}\n.secondary{background:rgba(255,255,255,.58);color:#46728b;border:1px solid rgba(104,160,185,.2);box-shadow:none}\nbutton:active{transform:scale(.985)}\n.hint{font-size:10px;color:#7892a3;margin:12px 0 0}\n.footer{font-size:9px;letter-spacing:2px;color:#7d98a8;margin-top:20px}\n.notice-wrap{position:fixed;right:14px;top:14px;z-index:20;pointer-events:none}\n.notice{width:min(310px,calc(100vw - 28px));padding:14px 16px;border-radius:18px;background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.9);box-shadow:0 18px 45px rgba(46,101,132,.2);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);transform:translateY(-24px);opacity:0;transition:transform .16s ease,opacity .16s ease;display:flex;align-items:center;gap:11px}\n.notice.show{transform:translateY(0);opacity:1}\n.notice.hide-down{transform:translateY(38px);opacity:0}\n.nicon{width:31px;height:31px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(135deg,#18d9e8,#6672f6);color:#fff;font-weight:900}\n.ntitle{font-size:12px;font-weight:900;letter-spacing:1.3px}\n.ntext{font-size:10px;color:#6b8596;margin-top:2px}\n.time-inputs{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:10px}\n.time-box{width:42%;position:relative}\n.time-box .field{width:100%;padding:0 10px;font-size:20px;font-weight:800;letter-spacing:1px}\n.time-box span{display:block;margin-top:6px;font-size:8px;font-weight:800;letter-spacing:1.5px;color:#7893a2}\n.time-separator{font-size:28px;font-weight:800;color:#66879a;margin-top:-18px}\n.time-box input::-webkit-outer-spin-button,.time-box input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}\n.time-box input[type=number]{appearance:textfield;-moz-appearance:textfield}\n.count-ring{width:190px;height:190px;margin:18px auto;border-radius:50%;padding:8px;overflow:hidden;background:conic-gradient(#18cfe8 0%,#537bf6 0%,rgba(117,164,185,.18) 0%);box-shadow:0 10px 28px rgba(62,128,184,.18);display:grid;place-items:center;transition:background .12s linear}.count-ring-inner{width:100%;height:100%;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.58);border:1px solid rgba(255,255,255,.82);box-shadow:inset 0 2px 8px rgba(40,100,130,.08)}.count{font-size:0;width:0;height:0;overflow:hidden;font-weight:850;letter-spacing:3px;line-height:1;margin:18px 0;color:#23425b;text-shadow:0 7px 20px rgba(68,132,164,.13)}\n.small-label{font-size:10px;letter-spacing:2px;color:#7893a2;font-weight:800}\n.progress-shell{margin-top:30px;width:100%;height:38px;border-radius:99px;padding:5px;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.82);box-shadow:inset 0 2px 7px rgba(40,100,130,.08)}\n.progress{height:100%;width:0%;border-radius:99px;position:relative;overflow:hidden;background:linear-gradient(90deg,#1bd6e9,#5879f5,#875df3);transition:width .12s linear}\n.progress:after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent,rgba(255,255,255,.55),transparent);animation:shine 1.2s linear infinite}\n@keyframes shine{from{transform:translateX(-100%)}to{transform:translateX(100%)}}\n.progress-text{margin-top:9px;font-size:10px;font-weight:900;letter-spacing:1.8px;color:#5e7d90}\n.process-messages{position:fixed;right:14px;top:82px;z-index:21;width:min(310px,calc(100vw - 28px));display:flex;flex-direction:column;align-items:flex-end;pointer-events:none}.process-msg{width:100%;padding:14px 16px;border-radius:18px;background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.9);box-shadow:0 18px 45px rgba(46,101,132,.2);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);text-align:left;font-size:10px;font-weight:900;letter-spacing:1.3px;color:#52758b;opacity:0;transform:translateY(-24px) scale(.97)}.process-msg.show{animation:processIn .16s ease forwards}.process-msg.leaving{animation:processOut .24s ease forwards}@keyframes processIn{to{opacity:1;transform:translateY(0) scale(1)}}@keyframes processOut{to{opacity:0;transform:translateY(38px) scale(.96)}}@media(max-width:480px){.process-messages{top:76px;right:10px;width:min(310px,calc(100vw - 20px))}}\n.ripple{position:fixed;z-index:15;width:12px;height:12px;border-radius:50%;pointer-events:none;border:2px solid rgba(55,204,232,.62);transform:translate(-50%,-50%) scale(1);animation:ripple .5s ease-out forwards}\n.drop{position:fixed;z-index:15;width:5px;height:5px;border-radius:50%;background:rgba(64,195,230,.6);pointer-events:none;animation:drop .45s ease-out forwards}\n@keyframes ripple{to{opacity:0;transform:translate(-50%,-50%) scale(7)}}\n@keyframes drop{to{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.2)}}\n@media(max-width:480px){.card{padding:27px 19px 20px;border-radius:27px}h1{font-size:27px}.notice-wrap{top:10px;right:10px}}\n";
-const APP_MARKUP = "<canvas id="water"></canvas>\n<div class="blob b1"></div>\n<div class="blob b2"></div>\n<div class="blob b3"></div>\n\n<div class="notice-wrap">\n  <div id="notice" class="notice">\n    <div id="nicon" class="nicon">✓</div>\n    <div>\n      <div id="ntitle" class="ntitle">KEY VERIFIED</div>\n      <div id="ntext" class="ntext">Access confirmed</div>\n    </div>\n  </div>\n</div>\n\n<section id="accessPage" class="page active">\n  <div class="card">\n    <svg class="logo" viewBox="0 0 100 100">\n      <defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#17d9eb"/><stop offset=".55" stop-color="#537bf6"/><stop offset="1" stop-color="#8a5cf3"/></linearGradient></defs>\n      <path fill="url(#lg)" d="M50 5C50 5 17 42 17 63C17 83 32 95 50 95S83 83 83 63C83 42 50 5 50 5Z"/>\n      <path fill="none" stroke="white" stroke-width="5" stroke-linecap="round" d="M27 66c8-7 16 7 24 0s16-7 22 0"/>\n    </svg>\n    <h1>SHORTNER</h1>\n    <div class="sub">SECURE ACCESS</div>\n    <div class="status"><span class="dot"></span>ONLINE SYSTEM</div>\n    <input id="license" class="field" autocomplete="off" spellcheck="false" placeholder="ENTER LICENSE KEY">\n    <button id="verify" class="primary">VERIFY ACCESS</button>\n    <button id="community" class="secondary">JOIN COMMUNITY</button>\n    <div class="hint">Secure liquid gateway • Ready</div>\n    <div class="footer">SHORTNER TEAM • BUILD 3.1.0</div>\n  </div>\n</section>\n\n<section id="timePage" class="page">\n  <div class="card">\n    <svg class="logo" viewBox="0 0 100 100">\n      <defs><linearGradient id="lg2" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#17d9eb"/><stop offset=".55" stop-color="#537bf6"/><stop offset="1" stop-color="#8a5cf3"/></linearGradient></defs>\n      <path fill="url(#lg2)" d="M50 5C50 5 17 42 17 63C17 83 32 95 50 95S83 83 83 63C83 42 50 5 50 5Z"/>\n      <path fill="none" stroke="white" stroke-width="5" stroke-linecap="round" d="M27 66c8-7 16 7 24 0s16-7 22 0"/>\n    </svg>\n    <h1>SHORTNER</h1>\n    <div class="sub">TARGET TIMER</div>\n    <div class="status"><span class="dot"></span>TARGET DETECTED</div>\n    <div class="small-label">SET DURATION</div>\n\n    <div class="time-inputs">\n      <div class="time-box">\n        <input id="minutes" class="field" type="number" min="0" max="999" value="" placeholder="00">\n        <span>MIN</span>\n      </div>\n      <div class="time-separator">:</div>\n      <div class="time-box">\n        <input id="seconds" class="field" type="number" min="0" max="999999" value="" placeholder="00">\n        <span>SEC</span>\n      </div>\n    </div>\n\n    <button id="start" class="primary">START</button>\n    <button id="back" class="secondary">BACK</button>\n    <div class="footer">SHORTNER TEAM • BUILD 3.1.0</div>\n  </div>\n</section>\n\n<div id="processMessages" class="process-messages"></div>\n\n<section id="countPage" class="page">\n  <div class="card">\n    <svg class="logo" viewBox="0 0 100 100">\n      <defs><linearGradient id="lg3" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#17d9eb"/><stop offset=".55" stop-color="#537bf6"/><stop offset="1" stop-color="#8a5cf3"/></linearGradient></defs>\n      <path fill="url(#lg3)" d="M50 5C50 5 17 42 17 63C17 83 32 95 50 95S83 83 83 63C83 42 50 5 50 5Z"/>\n      <path fill="none" stroke="white" stroke-width="5" stroke-linecap="round" d="M27 66c8-7 16 7 24 0s16-7 22 0"/>\n    </svg>\n    <h1>SHORTNER</h1>\n    <div class="sub">PROCESSING</div>\n    <div id="countRing" class="count-ring" style="--ring-progress:0%">\n      <div class="count-ring-inner"><div id="count" class="count">00:00</div></div>\n    </div>\n    <div class="small-label">ACTIVE PROCESS</div>\n    <div class="progress-shell"><div id="progress" class="progress"></div></div>\n    <div id="progressText" class="progress-text">PROCESSING 0%</div>\n    <button id="reset" class="secondary">RESET</button>\n    <div class="footer">SHORTNER TEAM • BUILD 3.1.0</div>\n  </div>\n</section>";
-​const style = document.createElement("style");
-style.id = "shortner-aincrad-styles";
-style.textContent = APP_CSS;
-(document.head || document.documentElement).appendChild(style);
-​const root = document.createElement("div");
-root.id = "shortner-aincrad-root";
-root.innerHTML = APP_MARKUP;
-(document.body || document.documentElement).appendChild(root);
-​const LICENSE_API_URL = "https://licensedevices.akhildotto338.workers.dev/api/trpc/license.validate";
-const SCRIPT_NAME = "AINCRAD";
-const DEVICE_STORAGE_KEY = "aincrad_device_id";
-​const canvas = document.getElementById("water");
-const ctx = canvas.getContext("2d", {alpha:true});
-let W=0,H=0,dpr=1;
-function resize(){
-dpr=Math.min(devicePixelRatio||1,1.5);
-W=innerWidth; H=innerHeight;
-canvas.width=Wdpr; canvas.height=Hdpr;
-canvas.style.width=W+"px"; canvas.style.height=H+"px";
-ctx.setTransform(dpr,0,0,dpr,0,0);
-}
-addEventListener("resize",resize,{passive:true});
-resize();
-let t=0;
-function drawWater(){
-t+=0.012;
-ctx.clearRect(0,0,W,H);
-ctx.lineWidth=1;
-ctx.strokeStyle="rgba(55,190,220,.10)";
-const gap=48;
-for(let y=-gap;y<H+gap;y+=gap){
-ctx.beginPath();
-for(let x=-20;x<=W+20;x+=20){
-const yy=y+Math.sin(x*.012+t+y*.018)*4;
-if(x===-20)ctx.moveTo(x,yy);else ctx.lineTo(x,yy);
-}
-ctx.stroke();
-}
-requestAnimationFrame(drawWater);
-}
-drawWater();
-​const notice=document.getElementById("notice");
-const ntitle=document.getElementById("ntitle");
-const ntext=document.getElementById("ntext");
-const nicon=document.getElementById("nicon");
-let noticeTimer;
-function showNotice(title,text,icon="✓",ms=900){
-clearTimeout(noticeTimer);
-notice.classList.remove("hide-down");
-ntitle.textContent=title;
-ntext.textContent=text;
-nicon.textContent=icon;
-notice.classList.add("show");
-noticeTimer=setTimeout(()=>{
-notice.classList.add("hide-down");
-setTimeout(()=>notice.classList.remove("show","hide-down"),170);
-},ms);
-}
-function page(id){
-document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-requestAnimationFrame(()=>document.getElementById(id).classList.add("active"));
-}
-​function getDeviceId(){
-let id=localStorage.getItem(DEVICE_STORAGE_KEY);
-if(!id){
-const seed=[screen.width+"x"+screen.height,screen.colorDepth,Intl.DateTimeFormat().resolvedOptions().timeZone,navigator.language,navigator.userAgent,navigator.hardwareConcurrency||"na",Date.now(),Math.random()].join("###");
-id="WEB_"+Array.from(new TextEncoder().encode(seed)).map(b=>b.toString(16).padStart(2,"0")).join("").slice(0,64);
-localStorage.setItem(DEVICE_STORAGE_KEY,id);
-}
-return id;
-}
-​async function verifyLicense(licenseKey){
-try{
-const response=await fetch(LICENSE_API_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({licenseKey,hwid:getDeviceId(),scriptName:SCRIPT_NAME})});
-const responseJson=await response.json();
-const data=responseJson?.result?.data;
-if(!data)return {allowed:false,message:"Invalid server response"};
-if(data.allowed)return {allowed:true,data};
-return {allowed:false,reason:data.reason,message:data.message||"License access denied"};
-}catch(error){
-return {allowed:false,message:"Network error: "+(error.message||"Unable to connect")};
-}
-}
-​function targetSequence(){
-showNotice("KEY VERIFIED","Access confirmed","✓",420);
-setTimeout(()=>{
-showNotice("TARGET DETECTED","Destination is ready","≈",520);
-setTimeout(()=>page("timePage"),150);
-},390);
-}
-​document.getElementById("verify").addEventListener("click",async()=>{
-const btn=document.getElementById("verify");
-const key=document.getElementById("license").value.trim();
-btn.classList.remove("animating");
-void btn.offsetWidth;
-btn.classList.add("animating");
-setTimeout(()=>btn.classList.remove("animating"),600);
-if(!key){showNotice("ENTER LICENSE","Please enter a key","!",700);return;}
-btn.disabled=true;
-btn.textContent="VERIFYING...";
-const result=await verifyLicense(key);
-if(result.allowed){
-btn.textContent="VERIFIED";
-showNotice("KEY VERIFIED",result.data?.message||"Access confirmed","✓",800);
-setTimeout(()=>{btn.disabled=false;btn.textContent="VERIFY ACCESS";targetSequence();},850);
-}else{
-const reason=result.reason?"Reason: "+result.reason:"";
-showNotice("ACCESS DENIED",(result.message||"License validation failed")+(reason?" • "+reason:""),"!",2400);
-btn.disabled=false;
-btn.textContent="VERIFY ACCESS";
-}
-});
-document.getElementById("license").addEventListener("keydown",e=>{if(e.key==="Enter")document.getElementById("verify").click();});
-document.getElementById("community").addEventListener("click",()=>{location.href="https://t.me/+Qjrl3DUTGVU2MWZl";});
-​const minutesInput=document.getElementById("minutes");
-const secondsInput=document.getElementById("seconds");
-function getDuration(){
-let minutes=parseInt(minutesInput.value,10)||0;
-let seconds=parseInt(secondsInput.value,10)||0;
-minutes+=Math.floor(seconds/60);
-seconds=seconds%60;
-minutesInput.value=minutes;
-secondsInput.value=String(seconds).padStart(2,"0");
-return minutes*60+seconds;
-}
-let timerId=0,endAt=0,totalSec=60;
-function fmt(sec){
-sec=Math.max(0,Math.ceil(sec));
-const minutes=Math.floor(sec/60),seconds=sec%60;
-return String(minutes).padStart(2,"0")+":"+String(seconds).padStart(2,"0");
-}
-​const processMessages=document.getElementById("processMessages");
-let processMessageTimer=0,processMessageRunning=false,processMessageQueue=[],processMessageBusy=false;
-function pumpProcessingMessages(){
-if(!processMessageRunning||processMessageBusy||!processMessageQueue.length)return;
-processMessageBusy=true;
-const text=processMessageQueue.shift();
-const msg=document.createElement("div");
-msg.className="process-msg";
-msg.textContent=text;
-processMessages.appendChild(msg);
-requestAnimationFrame(()=>msg.classList.add("show"));
-processMessageTimer=setTimeout(()=>{
-msg.classList.remove("show");
-msg.classList.add("leaving");
-setTimeout(()=>{
-if(msg.isConnected)msg.remove();
-processMessageBusy=false;
-pumpProcessingMessages();
-},700);
-},1400);
-}
-function showProcessingMessage(text){
-if(!processMessageRunning)return;
-processMessageQueue.push(text);
-pumpProcessingMessages();
-}
-function startProcessingMessages(){stopProcessingMessages();processMessageRunning=true;}
-function stopProcessingMessages(){processMessageRunning=false;clearTimeout(processMessageTimer);processMessageTimer=0;processMessageQueue=[];processMessageBusy=false;processMessages.innerHTML="";}
-function originalLog(icon,text){
-showNotice(text,"Aincrad process update",icon,950);
-}
-​let pendingDestination=null;
-let requestFinished=false;
-let timerFinished=false;
-let redirectStarted=false;
-​function parseDestination(text){
-let dest=null;
-text.trim().split("\n").forEach(line=>{
-try{
-const j=JSON.parse(line);
-dest=j?.json?.[2]?.[0]?.[0]?.destinationLink||j?.json?.[2]?.[0]?.[0]?.url||dest;
-}catch(e){}
-});
-return dest;
-}
-​// DYNAMIC HOST LOGIC (Domain Agnostic)
-async function requestDestination(){
-const host = location.host;
-const proto = location.protocol;
-​originalLog("🛰️", "CONNECTING TO " + host.toUpperCase() + "...");
-originalLog("⏳", "Fetching latest session data...");
-​const sessionRes = await fetch(${proto}//${host}/api/session-info, { credentials: "include" });
-if (!sessionRes.ok) throw new Error("Session endpoint unavailable on " + host);
-const sessionData = await sessionRes.json();
-​originalLog("✅", "Data Found");
-originalLog("📥", "Data Collected");
-if (!sessionData.sessionToken) throw new Error("Token Error: sessionToken was not returned");
-​originalLog("🛠️", "Working");
-originalLog("🔐", "TOKEN: " + sessionData.sessionToken.substring(0, 15) + "...");
-originalLog("🔗", "ESTABLISHING TUNNEL...");
-​const input = encodeURIComponent(JSON.stringify({
-"0": {
-"json": {
-"token": sessionData.sessionToken,
-"progress": (sessionData.totalStage || 0) + 1,
-"stageId": sessionData.stageId
-}
-}
-}));
-​originalLog("🧬", "INJECTING PAYLOAD...");
-const bypassRes = await fetch(${proto}//${host}/api/trpc/linkSession.nextStage?batch=1&input=${input}, {
-credentials: "include",
-headers: {
-"trpc-accept": "application/jsonl",
-"x-trpc-source": "nextjs-react"
-}
-});
-​if (!bypassRes.ok) throw new Error("Destination request failed with HTTP " + bypassRes.status);
-originalLog("📦", "PARSING RESPONSE HEADERS...");
-​const dest = parseDestination(await bypassRes.text());
-if (!dest) throw new Error("Destination link not found in server response");
-​originalLog("🎯", "REDIRECT TARGET: " + dest.substring(0, 40) + "...");
-return dest;
-}
-​function redirectIfReady(){
-if(redirectStarted||!timerFinished||!requestFinished||!pendingDestination)return;
-redirectStarted=true;
-showNotice("PROCESSING COMPLETE","Redirecting to destination","✓",1000);
-setTimeout(()=>{location.href=pendingDestination;},250);
-}
-​function updateCountdown(){
-const remain=Math.max(0,endAt-performance.now());
-const left=remain/1000;
-const pct=Math.min(100,Math.max(1,Math.floor((1-left/totalSec)*100)));
-document.getElementById("count").textContent=fmt(left);
-document.getElementById("countRing").style.background=conic-gradient(#18cfe8 ${pct}%,#5379f5 ${pct}%,rgba(117,164,185,.18) ${pct}%);
-document.getElementById("progress").style.width=pct+"%";
-document.getElementById("progressText").textContent="PROCESSING "+pct+"%";
-if(remain>0)timerId=requestAnimationFrame(updateCountdown);
-else{
-document.getElementById("count").textContent="00:00";
-document.getElementById("countRing").style.background="conic-gradient(#18cfe8 100%,#5379f5 100%,rgba(117,164,185,.18) 100%)";
-document.getElementById("progress").style.width="100%";
-document.getElementById("progressText").textContent="PROCESSING 100%";
-timerFinished=true;
-redirectIfReady();
-}
-}
-​document.getElementById("start").addEventListener("click",async()=>{
-const btn=document.getElementById("start");
-btn.classList.remove("animating");void btn.offsetWidth;btn.classList.add("animating");
-setTimeout(()=>btn.classList.remove("animating"),600);
-const sec=getDuration();
-if(sec<=0){showNotice("INVALID TIME","Enter minutes or seconds","!",900);return;}
-totalSec=sec;endAt=performance.now()+sec*1000;pendingDestination=null;requestFinished=false;timerFinished=false;redirectStarted=false;
-page("countPage");startProcessingMessages();cancelAnimationFrame(timerId);updateCountdown();
-originalLog("⚡","INITIALIZING FT BYPASS CORE...");
-originalLog("📡","TARGET DETECTED: "+location.host.toUpperCase());
-originalLog("🛡️","ANALYZING SECURITY PROTOCOLS...");
-try{
-pendingDestination=await requestDestination();
-requestFinished=true;
-redirectIfReady();
-}catch(error){
-requestFinished=true;
-cancelAnimationFrame(timerId);
-stopProcessingMessages();
-const reason=error.message||"Unknown error";
-showNotice("PROCESSING ERROR",reason+" • Please try again","!",3500);
-}
-});
-​document.getElementById("back").addEventListener("click",()=>{stopProcessingMessages();cancelAnimationFrame(timerId);page("accessPage");});
-document.getElementById("reset").addEventListener("click",()=>{stopProcessingMessages();cancelAnimationFrame(timerId);minutesInput.value="";secondsInput.value="";document.getElementById("progress").style.width="0%";document.getElementById("countRing").style.background="conic-gradient(#18cfe8 0%,#5379f5 0%,rgba(117,164,185,.18) 0%)";document.getElementById("progressText").textContent="PROCESSING 0%";document.getElementById("count").textContent="00:00";page("timePage");});
-​let lastRipple=0;
-function ripple(x,y){
-const now=performance.now();if(now-lastRipple<55)return;lastRipple=now;
-const r=document.createElement("span");r.className="ripple";r.style.left=x+"px";r.style.top=y+"px";document.body.appendChild(r);
-for(let i=0;i<3;i++){
-const d=document.createElement("span");d.className="drop";d.style.left=x+"px";d.style.top=y+"px";
-const angle=Math.random()Math.PI2,distance=18+Math.random()*18;
-d.style.setProperty("--dx",Math.cos(angle)*distance+"px");d.style.setProperty("--dy",Math.sin(angle)*distance+"px");
-document.body.appendChild(d);setTimeout(()=>d.remove(),480);
-}
-setTimeout(()=>r.remove(),520);
-}
-addEventListener("pointerdown",e=>ripple(e.clientX,e.clientY),{passive:true});
+  "use strict";
+
+  if (document.getElementById("shortner-aincrad-root")) return;
+
+  const APP_CSS = `
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap');
+
+  #shortner-aincrad-root {
+    position: fixed; inset: 0; z-index: 2147483647; overflow: hidden;
+    background-color: #050b14;
+    background-image: linear-gradient(rgba(0, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 30px 30px;
+    font-family: 'Rajdhani', sans-serif;
+    color: #e0f7fa;
+    display: flex; justify-content: center; align-items: center;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  
+  /* Background Glows */
+  .bg-glow { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.5; pointer-events: none; }
+  .bg-glow.cyan { width: 300px; height: 300px; background: #00ffff; top: -100px; left: -100px; }
+  .bg-glow.purple { width: 300px; height: 300px; background: #8a2be2; bottom: -100px; right: -100px; }
+
+  /* Page Transitions */
+  .page { position: absolute; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; opacity: 0; visibility: hidden; transform: scale(0.95); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 2; }
+  .page.active { opacity: 1; visibility: visible; transform: scale(1); }
+
+  /* Cyber Card Design */
+  .cyber-card {
+    width: min(400px, 100%);
+    background: rgba(5, 15, 25, 0.85);
+    border: 1px solid rgba(0, 255, 255, 0.2);
+    border-radius: 16px;
+    padding: 35px 25px;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    display: flex; flex-direction: column; align-items: center;
+    max-height: 85vh; /* Limits height for scrolling */
+  }
+  
+  /* Card Scrollable Area */
+  .card-scroll-area {
+    width: 100%;
+    overflow-y: auto;
+    padding-right: 5px;
+  }
+  .card-scroll-area::-webkit-scrollbar { width: 6px; }
+  .card-scroll-area::-webkit-scrollbar-thumb { background: #00ffff; border-radius: 10px; }
+
+  /* Neon Corners */
+  .corner { position: absolute; width: 20px; height: 20px; border-radius: 4px; pointer-events: none; }
+  .c-tl { top: -2px; left: -2px; border-top: 3px solid #00ffff; border-left: 3px solid #00ffff; box-shadow: -4px -4px 10px rgba(0,255,255,0.5); }
+  .c-tr { top: -2px; right: -2px; border-top: 3px solid #8a2be2; border-right: 3px solid #8a2be2; box-shadow: 4px -4px 10px rgba(138,43,226,0.5); }
+  .c-bl { bottom: -2px; left: -2px; border-bottom: 3px solid #8a2be2; border-left: 3px solid #8a2be2; box-shadow: -4px 4px 10px rgba(138,43,226,0.5); }
+  .c-br { bottom: -2px; right: -2px; border-bottom: 3px solid #00ffff; border-right: 3px solid #00ffff; box-shadow: 4px 4px 10px rgba(0,255,255,0.5); }
+
+  /* Typography */
+  h1 { font-family: 'Orbitron', sans-serif; font-size: 26px; font-weight: 900; letter-spacing: 4px; margin: 15px 0 5px; color: #fff; text-shadow: 0 0 10px #00ffff; text-align: center; }
+  .sub { font-size: 14px; letter-spacing: 2px; color: #00ffff; margin-bottom: 25px; text-align: center; text-transform: uppercase; font-weight: 700; }
+
+  /* Logo */
+  .logo-box { width: 90px; height: 90px; border-radius: 50%; border: 2px dashed #00ffff; display: flex; justify-content: center; align-items: center; box-shadow: 0 0 20px rgba(0,255,255,0.3), inset 0 0 15px rgba(0,255,255,0.2); animation: pulseGlow 2s infinite alternate; margin: 0 auto; }
+  .logo-box svg { width: 45px; height: 45px; fill: #00ffff; filter: drop-shadow(0 0 5px #00ffff); }
+  @keyframes pulseGlow { from { box-shadow: 0 0 10px rgba(0,255,255,0.2), inset 0 0 10px rgba(0,255,255,0.1); } to { box-shadow: 0 0 25px rgba(0,255,255,0.5), inset 0 0 20px rgba(0,255,255,0.4); border-color: #8a2be2; } }
+
+  /* Inputs */
+  .cyber-input { width: 100%; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(0, 255, 255, 0.3); border-radius: 8px; padding: 15px; color: #fff; font-family: 'Orbitron', sans-serif; font-size: 14px; text-align: center; letter-spacing: 2px; margin-bottom: 15px; outline: none; transition: all 0.3s; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); }
+  .cyber-input:focus { border-color: #00ffff; box-shadow: 0 0 15px rgba(0, 255, 255, 0.4), inset 0 0 10px rgba(0, 255, 255, 0.2); }
+  .cyber-input::placeholder { color: rgba(255, 255, 255, 0.3); }
+
+  /* Buttons */
+  button { width: 100%; padding: 16px; border-radius: 8px; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 18px; letter-spacing: 2px; cursor: pointer; border: none; outline: none; transition: all 0.2s; position: relative; overflow: hidden; margin-bottom: 15px; display: flex; justify-content: center; align-items: center; gap: 10px; }
+  button:active { transform: scale(0.96); }
+  
+  .btn-primary { background: linear-gradient(90deg, #00ffff, #0055ff, #8a2be2); background-size: 200% 200%; color: #fff; box-shadow: 0 5px 15px rgba(138,43,226,0.4); animation: gradMove 3s ease infinite; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+  .btn-secondary { background: rgba(255, 255, 255, 0.05); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(5px); }
+  .btn-secondary:hover { background: rgba(255, 255, 255, 0.1); border-color: #00ffff; box-shadow: 0 0 10px rgba(0,255,255,0.2); }
+  
+  @keyframes gradMove { 0% {background-position: 0% 50%} 50% {background-position: 100% 50%} 100% {background-position: 0% 50%} }
+
+  /* Time Selection Grid */
+  .time-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+  .time-btn { background: rgba(0, 255, 255, 0.1); border: 1px solid #00ffff; color: #00ffff; padding: 12px 0; margin: 0; font-size: 20px; border-radius: 8px; box-shadow: inset 0 0 5px rgba(0,255,255,0.2); }
+  .time-btn:hover, .time-btn.selected { background: #00ffff; color: #000; box-shadow: 0 0 15px #00ffff; }
+  
+  .divider { display: flex; align-items: center; text-align: center; color: rgba(255,255,255,0.4); font-size: 12px; margin: 10px 0 20px; letter-spacing: 2px; }
+  .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px dashed rgba(255,255,255,0.2); margin: 0 10px; }
+
+  /* Unknown Style Reactor (Processing) */
+  .reactor-container { position: relative; width: 160px; height: 160px; margin: 20px auto 40px; display: flex; justify-content: center; align-items: center; }
+  .ring { position: absolute; border-radius: 50%; border: 2px solid transparent; }
+  .ring-1 { width: 100%; height: 100%; border-top: 2px solid #00ffff; border-bottom: 2px solid #8a2be2; animation: spin 2s linear infinite; }
+  .ring-2 { width: 80%; height: 80%; border-left: 2px dashed #ff00ff; border-right: 2px dashed #00ffff; animation: spin-reverse 3s linear infinite; }
+  .ring-3 { width: 60%; height: 60%; border-top: 2px dotted #fff; border-bottom: 2px dotted #fff; animation: spin 1.5s linear infinite; }
+  .core { font-family: 'Orbitron', sans-serif; font-size: 32px; font-weight: 900; color: #fff; text-shadow: 0 0 15px #00ffff; }
+  
+  @keyframes spin { 100% { transform: rotate(360deg); } }
+  @keyframes spin-reverse { 100% { transform: rotate(-360deg); } }
+
+  /* Progress Bar */
+  .progress-wrap { width: 100%; background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(0, 255, 255, 0.3); border-radius: 20px; height: 24px; padding: 3px; position: relative; margin-bottom: 10px; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); overflow: hidden; }
+  .progress-fill { height: 100%; width: 0%; border-radius: 20px; background: linear-gradient(90deg, #00ffff, #0055ff, #8a2be2, #ff00ff); background-size: 300% 100%; animation: gradMove 2s linear infinite; transition: width 0.3s linear; box-shadow: 0 0 10px rgba(0, 255, 255, 0.5); }
+  .progress-text-label { text-align: center; font-size: 12px; letter-spacing: 2px; color: #00ffff; font-weight: 700; }
+
+  /* Footer Stylish Text */
+  .footer-box { margin-top: 25px; display: flex; justify-content: center; align-items: center; flex-direction: column; width: 100%; }
+  .footer-line { width: 80%; height: 1px; background: linear-gradient(90deg, transparent, rgba(0,255,255,0.5), transparent); margin-bottom: 10px; }
+  .arafat-text { 
+    font-family: 'Orbitron', sans-serif; 
+    font-size: 16px; 
+    font-weight: 900; 
+    letter-spacing: 3px;
+    background: linear-gradient(90deg, #00ffff, #8a2be2, #ff00ff, #00ffff);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradMove 3s linear infinite, glowPulse 2s ease-in-out infinite;
+    text-transform: uppercase;
+  }
+  @keyframes glowPulse { 0%, 100% { filter: drop-shadow(0 0 5px rgba(0,255,255,0.5)); } 50% { filter: drop-shadow(0 0 15px rgba(255,0,255,0.8)); } }
+
+  /* Toast Notification */
+  .cyber-toast-wrap { position: fixed; top: 20px; right: 20px; z-index: 9999; pointer-events: none; display: flex; flex-direction: column; gap: 10px; }
+  .cyber-toast { width: 300px; background: rgba(5, 15, 25, 0.9); border-left: 4px solid #00ffff; padding: 15px; border-radius: 4px; box-shadow: 0 5px 15px rgba(0,0,0,0.5), 0 0 10px rgba(0,255,255,0.2); display: flex; align-items: center; gap: 15px; transform: translateX(120%); opacity: 0; transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); backdrop-filter: blur(5px); }
+  .cyber-toast.show { transform: translateX(0); opacity: 1; }
+  .toast-icon { font-size: 20px; color: #00ffff; text-shadow: 0 0 5px #00ffff; }
+  .cyber-toast.error { border-left-color: #ff003c; }
+  .cyber-toast.error .toast-icon { color: #ff003c; text-shadow: 0 0 5px #ff003c; }
+  .toast-title { font-size: 14px; font-weight: 900; color: #fff; letter-spacing: 1px; }
+  .toast-msg { font-size: 12px; color: #aaa; margin-top: 3px; }
+  
+  /* Loading Spinner */
+  .spinner { display: none; width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 10px; }
+  .btn-primary.loading .spinner { display: inline-block; }
+  .btn-primary.loading .btn-text { display: none; }
+  `;
+
+  const APP_MARKUP = \`
+  <div class="bg-glow cyan"></div>
+  <div class="bg-glow purple"></div>
+
+  <div class="cyber-toast-wrap" id="toastWrap"></div>
+
+  <!-- LOGIN PAGE -->
+  <section id="loginPage" class="page active">
+    <div class="cyber-card">
+      <div class="corner c-tl"></div><div class="corner c-tr"></div><div class="corner c-bl"></div><div class="corner c-br"></div>
+      
+      <div class="logo-box">
+        <svg viewBox="0 0 24 24"><path d="M12 2L3 7l9 5 9-5-9-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#00ffff" stroke-width="2" fill="none" stroke-linejoin="round"/></svg>
+      </div>
+      
+      <h1>SHORTNER</h1>
+      <div class="sub">Access Gateway</div>
+
+      <input id="accessKey" type="text" class="cyber-input" placeholder="ENTER ACCESS KEY" autocomplete="off" spellcheck="false">
+      
+      <button id="btnStart" class="btn-primary">
+        <span class="spinner"></span>
+        <span class="btn-text">START</span>
+      </button>
+      
+      <button id="btnTelegram" class="btn-secondary">
+        <svg style="width:18px;height:18px;fill:#fff;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.19-.08-.05-.19-.02-.27 0-.11.03-1.84 1.18-5.2 3.45-.49.34-.94.5-1.35.49-.45-.01-1.32-.26-1.96-.47-.79-.26-1.42-.39-1.37-.83.03-.22.35-.45.96-.69 3.76-1.64 6.27-2.72 7.53-3.24 3.58-1.49 4.33-1.75 4.82-1.76.11 0 .35.03.5.15.13.1.17.24.19.34.02.13.03.26.02.32z"/></svg>
+        JOIN TELEGRAM
+      </button>
+
+      <div class="footer-box">
+        <div class="footer-line"></div>
+        <div class="arafat-text">SHORTNER BY ARAFAT</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TIME SELECTION PAGE -->
+  <section id="timePage" class="page">
+    <div class="cyber-card">
+      <div class="corner c-tl"></div><div class="corner c-tr"></div><div class="corner c-bl"></div><div class="corner c-br"></div>
+      
+      <h1>SELECT TIME</h1>
+      <div class="sub">Processing Duration</div>
+
+      <div class="card-scroll-area">
+        <div class="time-grid">
+          <button class="time-btn" data-time="20">20s</button>
+          <button class="time-btn" data-time="30">30s</button>
+          <button class="time-btn" data-time="40">40s</button>
+        </div>
+
+        <div class="divider">INPUT MANUAL</div>
+        
+        <input id="manualTime" type="number" class="cyber-input" placeholder="ENTER SECONDS (e.g. 15)" min="1" max="999">
+        
+        <button id="btnStartProcess" class="btn-primary">START PROCESS</button>
+        <button id="btnBackToLogin" class="btn-secondary" style="margin-top: 10px; padding: 10px; font-size: 14px;">BACK</button>
+      </div>
+
+      <div class="footer-box">
+        <div class="footer-line"></div>
+        <div class="arafat-text">SHORTNER BY ARAFAT</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESSING PAGE -->
+  <section id="processPage" class="page">
+    <div class="cyber-card">
+      <div class="corner c-tl"></div><div class="corner c-tr"></div><div class="corner c-bl"></div><div class="corner c-br"></div>
+      
+      <h1>PROCESSING</h1>
+      <div class="sub">Establishing Connection</div>
+
+      <div class="reactor-container">
+        <div class="ring ring-1"></div>
+        <div class="ring ring-2"></div>
+        <div class="ring ring-3"></div>
+        <div class="core" id="countdownDisplay">0</div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-fill" id="progressBar"></div>
+      </div>
+      <div class="progress-text-label" id="progressText">0%</div>
+
+      <div class="footer-box" style="margin-top: 40px;">
+        <div class="footer-line"></div>
+        <div class="arafat-text">SHORTNER BY ARAFAT</div>
+      </div>
+    </div>
+  </section>
+  \`;
+
+  // Inject CSS and HTML
+  const style = document.createElement("style");
+  style.id = "shortner-aincrad-styles";
+  style.textContent = APP_CSS;
+  (document.head || document.documentElement).appendChild(style);
+
+  const root = document.createElement("div");
+  root.id = "shortner-aincrad-root";
+  root.innerHTML = APP_MARKUP;
+  (document.body || document.documentElement).appendChild(root);
+
+  // --- LOGIC & FUNCTIONALITY ---
+  
+  const LICENSE_API_URL = "https://licensedevices.akhildotto338.workers.dev/api/trpc/license.validate";
+  const SCRIPT_NAME = "AINCRAD";
+  const DEVICE_STORAGE_KEY = "aincrad_device_id";
+  const SAVED_KEY_STORAGE = "aincrad_saved_key";
+  const SUPPORTED_DOMAINS = ["tarviral.com", "rodaemotor.com", "donpviral.xyz"];
+  
+  // UI Elements
+  const pages = {
+    login: document.getElementById('loginPage'),
+    time: document.getElementById('timePage'),
+    process: document.getElementById('processPage')
+  };
+  const keyInput = document.getElementById('accessKey');
+  const btnStart = document.getElementById('btnStart');
+  const manualTimeInput = document.getElementById('manualTime');
+  const timeBtns = document.querySelectorAll('.time-btn');
+  
+  let selectedTime = 0;
+  let finalDestination = null;
+  let apiRequestDone = false;
+
+  // Notification System
+  function showToast(title, message, type = "success") {
+    const wrap = document.getElementById('toastWrap');
+    const toast = document.createElement('div');
+    toast.className = \`cyber-toast \${type}\`;
+    const icon = type === 'success' ? '✓' : '✗';
+    
+    toast.innerHTML = \`
+      <div class="toast-icon">\${icon}</div>
+      <div>
+        <div class="toast-title">\${title}</div>
+        <div class="toast-msg">\${message}</div>
+      </div>
+    \`;
+    
+    wrap.appendChild(toast);
+    
+    // Trigger animation
+    requestAnimationFrame(() => {
+      toast.classList.add('show');
+    });
+
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => toast.remove(), 400); // Wait for transition
+    }, 3000);
+  }
+
+  function switchPage(pageName) {
+    Object.values(pages).forEach(p => p.classList.remove('active'));
+    pages[pageName].classList.add('active');
+  }
+
+  // Device ID logic
+  function getDeviceId(){
+    let id = localStorage.getItem(DEVICE_STORAGE_KEY);
+    if(!id){
+      const seed = [screen.width+"x"+screen.height, navigator.userAgent, Date.now(), Math.random()].join("###");
+      id = "WEB_" + Array.from(new TextEncoder().encode(seed)).map(b=>b.toString(16).padStart(2,"0")).join("").slice(0,32);
+      localStorage.setItem(DEVICE_STORAGE_KEY, id);
+    }
+    return id;
+  }
+
+  // API Logic
+  async function verifyLicense(licenseKey){
+    try{
+      const response = await fetch(LICENSE_API_URL, {
+        method: "POST", 
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({licenseKey, hwid: getDeviceId(), scriptName: SCRIPT_NAME})
+      });
+      const resJson = await response.json();
+      const data = resJson?.result?.data;
+      if(!data) return {allowed:false, message:"Invalid server response"};
+      if(data.allowed) return {allowed:true, data};
+      return {allowed:false, message: data.message || "License Access Denied"};
+    }catch(error){
+      return {allowed:false, message: "Network error: Unable to connect"};
+    }
+  }
+
+  // Initial Load - Check for saved key
+  const savedKey = localStorage.getItem(SAVED_KEY_STORAGE);
+  if (savedKey) {
+    keyInput.value = savedKey;
+  }
+
+  // Start/Login Button Click
+  btnStart.addEventListener('click', async () => {
+    const key = keyInput.value.trim();
+    if (!key) {
+      showToast("ERROR", "Please enter Access Key", "error");
+      return;
+    }
+
+    btnStart.classList.add('loading');
+    btnStart.disabled = true;
+
+    const result = await verifyLicense(key);
+
+    btnStart.classList.remove('loading');
+    btnStart.disabled = false;
+
+    if (result.allowed) {
+      showToast("SUCCESS", "Key verified successfully");
+      localStorage.setItem(SAVED_KEY_STORAGE, key); // Save key
+      setTimeout(() => switchPage('time'), 500);
+    } else {
+      showToast("ACCESS DENIED", result.message, "error");
+    }
+  });
+
+  // Telegram Button
+  document.getElementById('btnTelegram').addEventListener('click', () => {
+    location.href = "https://t.me/+Qjrl3DUTGVU2MWZl";
+  });
+
+  // Back Button in Time Page
+  document.getElementById('btnBackToLogin').addEventListener('click', () => {
+    switchPage('login');
+  });
+
+  // Time Selection Logic
+  timeBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      timeBtns.forEach(b => b.classList.remove('selected'));
+      e.target.classList.add('selected');
+      manualTimeInput.value = ''; // clear manual if preset is clicked
+      selectedTime = parseInt(e.target.getAttribute('data-time'));
+    });
+  });
+
+  manualTimeInput.addEventListener('input', (e) => {
+    if (e.target.value) {
+      timeBtns.forEach(b => b.classList.remove('selected'));
+      selectedTime = parseInt(e.target.value);
+    }
+  });
+
+  // Start Process Button
+  document.getElementById('btnStartProcess').addEventListener('click', () => {
+    if (!selectedTime || selectedTime <= 0) {
+      showToast("INVALID TIME", "Please select or input valid time", "error");
+      return;
+    }
+    startProcessing();
+  });
+
+  // Destination Fetching Logic (From original code)
+  function getCurrentDomain(){
+    const host = location.host.toLowerCase();
+    return SUPPORTED_DOMAINS.find(d => host.includes(d)) || null;
+  }
+  
+  function parseDestination(text){
+    let dest = null;
+    text.trim().split("\\n").forEach(line => {
+      try{
+        const j = JSON.parse(line);
+        dest = j?.json?.[2]?.[0]?.[0]?.destinationLink || j?.json?.[2]?.[0]?.[0]?.url || dest;
+      }catch(e){}
+    });
+    return dest;
+  }
+
+  async function fetchTargetUrl() {
+    try {
+      const domain = getCurrentDomain();
+      if(!domain) throw new Error("Domain not supported");
+      
+      const proto = location.protocol;
+      const sessionRes = await fetch(\`\${proto}//\${domain}/api/session-info\`, {credentials:"include"});
+      if(!sessionRes.ok) throw new Error("Session failed");
+      const sessionData = await sessionRes.json();
+      if(!sessionData.sessionToken) throw new Error("No token");
+
+      const input = encodeURIComponent(JSON.stringify({"0":{"json":{"token":sessionData.sessionToken,"progress":sessionData.totalStage+1,"stageId":sessionData.stageId}}}));
+      const bypassRes = await fetch(\`\${proto}//\${domain}/api/trpc/linkSession.nextStage?batch=1&input=\${input}\`, {credentials:"include", headers:{"trpc-accept":"application/jsonl","x-trpc-source":"nextjs-react"}});
+      
+      const dest = parseDestination(await bypassRes.text());
+      if(dest) {
+        finalDestination = dest;
+        apiRequestDone = true;
+      } else {
+        throw new Error("No destination found");
+      }
+    } catch (e) {
+      showToast("PROCESS ERROR", e.message, "error");
+      apiRequestDone = true; // Set to true so timer doesn't hang forever, but dest is null
+    }
+  }
+
+  // Processing Timer Logic
+  function startProcessing() {
+    switchPage('process');
+    finalDestination = null;
+    apiRequestDone = false;
+    
+    // Start fetching url in background
+    fetchTargetUrl();
+
+    const startTime = performance.now();
+    const durationMs = selectedTime * 1000;
+    const progressFill = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const countdownDisplay = document.getElementById('countdownDisplay');
+
+    function update() {
+      const elapsed = performance.now() - startTime;
+      let percent = Math.floor((elapsed / durationMs) * 100);
+      let timeLeft = Math.ceil((durationMs - elapsed) / 1000);
+
+      if (percent >= 100) percent = 100;
+      if (timeLeft <= 0) timeLeft = 0;
+
+      progressFill.style.width = \`\${percent}%\`;
+      progressText.innerText = \`PROCESSING \${percent}%\`;
+      countdownDisplay.innerText = timeLeft;
+
+      if (elapsed < durationMs) {
+        requestAnimationFrame(update);
+      } else {
+        // Timer done, wait for API if not finished
+        checkAndRedirect();
+      }
+    }
+    requestAnimationFrame(update);
+  }
+
+  function checkAndRedirect() {
+    if (!apiRequestDone) {
+      showToast("WAITING", "Finalizing connection...");
+      setTimeout(checkAndRedirect, 1000);
+      return;
+    }
+    if (finalDestination) {
+      showToast("SUCCESS", "Redirecting now...");
+      setTimeout(() => {
+        location.href = finalDestination;
+      }, 500);
+    } else {
+      showToast("FAILED", "Could not get destination link", "error");
+      setTimeout(() => switchPage('time'), 2000);
+    }
+  }
+
 })();
